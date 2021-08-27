@@ -14,7 +14,7 @@ export interface FilePickerOptions {
 }
 
 export interface FilePickerResults {
-  file: FilePickerResult[];
+  files: FilePickerResult[];
 }
 
 export interface FilePickerResult {
