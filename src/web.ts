@@ -1,10 +1,15 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { FilePickerPlugin } from './definitions';
+import type {
+  FilePickerOptions,
+  FilePickerPlugin,
+  FilePickerResults,
+} from './definitions';
 
 export class FilePickerWeb extends WebPlugin implements FilePickerPlugin {
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
+  async pick(options: FilePickerOptions): Promise<FilePickerResults> {
+    console.log('pick', options);
+
+    throw this.unimplemented('Not implemented on web.');
   }
 }
