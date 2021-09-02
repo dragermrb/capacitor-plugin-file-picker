@@ -49,9 +49,9 @@ pick(options: FilePickerOptions) => any
 
 #### FilePickerResults
 
-| Prop       | Type            |
-| ---------- | --------------- |
-| **`file`** | <code>{}</code> |
+| Prop        | Type            |
+| ----------- | --------------- |
+| **`files`** | <code>{}</code> |
 
 
 #### FilePickerResult
