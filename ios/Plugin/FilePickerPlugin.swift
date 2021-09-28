@@ -7,7 +7,7 @@ import CoreServices
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(FilePickerPlugin)
-public class FilePickerPlugin: CAPPlugin, UIDocumentPickerDelegate {
+public class FilePickerPlugin: CAPPlugin {
     var savedCall: CAPPluginCall? = nil
 
     @objc func pick(_ call: CAPPluginCall) {
@@ -40,7 +40,7 @@ public class FilePickerPlugin: CAPPlugin, UIDocumentPickerDelegate {
                             nil
                         )
 
-                        if let uti = (utiUnmanaged?.takeRetainedValue() as? String) {
+                        if let uti = (utiUnmanaged?.takeRetainedValue() as String?) {
                             if !uti.hasPrefix("dyn.") {
                                 extUTI = uti as CFString
                             }
@@ -62,18 +62,22 @@ public class FilePickerPlugin: CAPPlugin, UIDocumentPickerDelegate {
             self.bridge!.viewController!.present(documentPicker, animated: true)
         }
     }
+}
 
+extension FilePickerPlugin: UIDocumentPickerDelegate {
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        var files: [PluginCallResultData] = []
+        var files = [JSObject]()
 
         for url in urls
         {
-            files.append([
-                "path": url.absoluteString,
-                "webPath": self.bridge?.portablePath(fromLocalURL: url),
-                "name": url.lastPathComponent,
-                "extension": url.pathExtension
-            ]);
+            var file = JSObject()
+            
+            file["path"] = url.absoluteString
+            file["webPath"] = self.bridge?.portablePath(fromLocalURL: url)?.absoluteString
+            file["name"] = url.lastPathComponent
+            file["extension"] = url.pathExtension
+            
+            files.append(file);
         }
 
         savedCall!.resolve([
