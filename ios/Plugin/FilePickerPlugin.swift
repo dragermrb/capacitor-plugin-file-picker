@@ -21,45 +21,51 @@ public class FilePickerPlugin: CAPPlugin {
         {
             var extUTI:CFString?
 
-            switch mimeType {
-				case "audio/*":
-					extUTI = kUTTypeAudio
-				case "image/*":
-					extUTI = kUTTypeImage
-				case "text/*":
-					extUTI = kUTTypeText
-				case "video/*":
-					extUTI = kUTTypeVideo
-				default:
-                    extUTI = kUTTypeData
+            if (mimeType.starts(with: "audio/*")) {
+                extUTI = kUTTypeAudio
+            } else if (mimeType.starts(with: "image/*")) {
+                extUTI = kUTTypeImage
+            } else if (mimeType.starts(with: "text/*")) {
+                extUTI = kUTTypeText
+            } else if (mimeType.starts(with: "video/*")) {
+                extUTI = "public.movie" as CFString;
+            } else {
+                extUTI = kUTTypeData
 
-                    if mimeType.range(of: "*") == nil {
-                        let utiUnmanaged = UTTypeCreatePreferredIdentifierForTag(
-                            kUTTagClassMIMEType,
-                            mimeType as CFString,
-                            nil
-                        )
+                if mimeType.range(of: "*") == nil {
+                    let utiUnmanaged = UTTypeCreatePreferredIdentifierForTag(
+                        kUTTagClassMIMEType,
+                        mimeType as CFString,
+                        nil
+                    )
 
-                        if let uti = (utiUnmanaged?.takeRetainedValue() as String?) {
-                            if !uti.hasPrefix("dyn.") {
-                                extUTI = uti as CFString
-                            }
+                    if let uti = (utiUnmanaged?.takeRetainedValue() as String?) {
+                        if !uti.hasPrefix("dyn.") {
+                            extUTI = uti as CFString
                         }
                     }
-					break
-			}
+                }
+            }
 
             extUTIs.append(extUTI! as String)
         }
 
         DispatchQueue.main.async {
-            let types: [String] = extUTIs
-            let documentPicker = UIDocumentPickerViewController(documentTypes: types, in: .import)
-            documentPicker.delegate = self
-            documentPicker.modalPresentationStyle = .formSheet
-            documentPicker.allowsMultipleSelection = multiple
+            if (extUTIs.count == 1 && extUTIs.contains("public.movie")){
+                let videoPicker = UIImagePickerController()
+                videoPicker.delegate = self
+                videoPicker.sourceType = .photoLibrary
+                videoPicker.mediaTypes = [kUTTypeMovie as String]
 
-            self.bridge!.viewController!.present(documentPicker, animated: true)
+                self.bridge!.viewController!.present(videoPicker, animated: true)
+            } else {
+                let documentPicker = UIDocumentPickerViewController(documentTypes: extUTIs, in: .import)
+                documentPicker.delegate = self
+                documentPicker.modalPresentationStyle = .formSheet
+                documentPicker.allowsMultipleSelection = multiple
+
+                self.bridge!.viewController!.present(documentPicker, animated: true)
+            }
         }
     }
 }
@@ -71,12 +77,12 @@ extension FilePickerPlugin: UIDocumentPickerDelegate {
         for url in urls
         {
             var file = JSObject()
-            
+
             file["path"] = url.absoluteString
             file["webPath"] = self.bridge?.portablePath(fromLocalURL: url)?.absoluteString
             file["name"] = url.lastPathComponent
             file["extension"] = url.pathExtension
-            
+
             files.append(file);
         }
 
@@ -88,4 +94,58 @@ extension FilePickerPlugin: UIDocumentPickerDelegate {
     public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         savedCall!.reject("canceled")
     }
+}
+
+extension FilePickerPlugin: UIImagePickerControllerDelegate {
+    public func imagePickerController(_ controller: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard
+            let mediaUrl = info[.mediaURL] as? URL
+        else {
+            savedCall!.reject("Cannot get video URL")
+            return
+        }
+
+        var url: URL;
+        do{
+            url = try saveTemporaryVideo(mediaUrl)
+        } catch{
+            savedCall!.reject("Cannot save video")
+            return
+        }
+
+        var files = [JSObject]()
+        var file = JSObject()
+
+        file["path"] = url.absoluteString
+        file["webPath"] = self.bridge?.portablePath(fromLocalURL: url)?.absoluteString
+        file["name"] = url.lastPathComponent
+        file["extension"] = url.pathExtension
+
+        files.append(file);
+
+        controller.dismiss(animated: true) {
+            self.savedCall!.resolve([
+                "files": files
+            ])
+        }
+    }
+
+    public func imagePickerControllerDidCancel(_ controller: UIImagePickerController) {
+        controller.dismiss(animated: true) {
+            self.savedCall!.reject("canceled")
+        }
+    }
+
+    func saveTemporaryVideo(_ mediaUrl: URL) throws -> URL {
+        let url = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(mediaUrl.lastPathComponent)
+
+        try FileManager.default.copyItem(at: mediaUrl, to: url)
+
+        return url
+    }
+}
+
+extension FilePickerPlugin: UINavigationControllerDelegate {
+
 }
