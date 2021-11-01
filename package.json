@@ -1,6 +1,6 @@
 {
-  "name": "capacitor-plugin-file-picker",
-  "version": "0.0.1",
+  "name": "@whiteguru/capacitor-plugin-file-picker",
+  "version": "1.0.0",
   "description": "Capacitor plugin to pick files",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

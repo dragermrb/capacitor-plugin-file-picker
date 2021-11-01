@@ -5,7 +5,7 @@ Capacitor plugin to pick files
 ## Install
 
 ```bash
-npm install capacitor-plugin-file-picker
+npm install @whiteguru/capacitor-plugin-file-picker
 npx cap sync
 ```
 
