@@ -9,6 +9,13 @@ npm install @whiteguru/capacitor-plugin-file-picker
 npx cap sync
 ```
 
+### or for Capacitor 3.x
+
+```bash
+npm install @whiteguru/capacitor-plugin-file-picker@3.0.1
+npx cap sync
+```
+
 ## API
 
 <docgen-index>
@@ -24,14 +31,14 @@ npx cap sync
 ### pick(...)
 
 ```typescript
-pick(options: FilePickerOptions) => any
+pick(options: FilePickerOptions) => Promise<FilePickerResults>
 ```
 
 | Param         | Type                                                            |
 | ------------- | --------------------------------------------------------------- |
 | **`options`** | <code><a href="#filepickeroptions">FilePickerOptions</a></code> |
 
-**Returns:** <code>any</code>
+**Returns:** <code>Promise&lt;<a href="#filepickerresults">FilePickerResults</a>&gt;</code>
 
 --------------------
 
@@ -39,19 +46,11 @@ pick(options: FilePickerOptions) => any
 ### Interfaces
 
 
-#### FilePickerOptions
-
-| Prop           | Type                 | Description           |
-| -------------- | -------------------- | --------------------- |
-| **`multiple`** | <code>boolean</code> | Select multiple Files |
-| **`mimes`**    | <code>{}</code>      | Mimes to select       |
-
-
 #### FilePickerResults
 
-| Prop        | Type            |
-| ----------- | --------------- |
-| **`files`** | <code>{}</code> |
+| Prop        | Type                            |
+| ----------- | ------------------------------- |
+| **`files`** | <code>FilePickerResult[]</code> |
 
 
 #### FilePickerResult
@@ -62,5 +61,13 @@ pick(options: FilePickerOptions) => any
 | **`webPath`**   | <code>string</code> | webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering. |
 | **`name`**      | <code>string</code> | File Name                                                                                                         |
 | **`extension`** | <code>string</code> | File Extensions                                                                                                   |
+
+
+#### FilePickerOptions
+
+| Prop           | Type                  | Description           |
+| -------------- | --------------------- | --------------------- |
+| **`multiple`** | <code>boolean</code>  | Select multiple Files |
+| **`mimes`**    | <code>string[]</code> | Mimes to select       |
 
 </docgen-api>
