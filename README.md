@@ -9,7 +9,15 @@ npm install @whiteguru/capacitor-plugin-file-picker
 npx cap sync
 ```
 
-### or for Capacitor 3.x
+### Capacitor 4.x
+
+```bash
+npm install @whiteguru/capacitor-plugin-file-picker@4.0.1
+npx cap sync
+```
+
+
+### Capacitor 3.x
 
 ```bash
 npm install @whiteguru/capacitor-plugin-file-picker@3.0.1
