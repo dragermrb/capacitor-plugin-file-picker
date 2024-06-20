@@ -2,20 +2,26 @@
 
 Capacitor plugin to pick files
 
-## Install
+## Install (Capacitor 6.x)
 
 ```bash
 npm install @whiteguru/capacitor-plugin-file-picker
 npx cap sync
 ```
 
-### Capacitor 4.x
+### Capacitor 5.x
 
 ```bash
-npm install @whiteguru/capacitor-plugin-file-picker@4.0.1
+npm install @whiteguru/capacitor-plugin-file-picker@^5.0.1
 npx cap sync
 ```
 
+### Capacitor 4.x
+
+```bash
+npm install @whiteguru/capacitor-plugin-file-picker@^4.0.1
+npx cap sync
+```
 
 ### Capacitor 3.x
 
@@ -28,8 +34,8 @@ npx cap sync
 
 <docgen-index>
 
-* [`pick(...)`](#pick)
-* [Interfaces](#interfaces)
+- [`pick(...)`](#pick)
+- [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -48,18 +54,15 @@ pick(options: FilePickerOptions) => Promise<FilePickerResults>
 
 **Returns:** <code>Promise&lt;<a href="#filepickerresults">FilePickerResults</a>&gt;</code>
 
---------------------
-
+---
 
 ### Interfaces
-
 
 #### FilePickerResults
 
 | Prop        | Type                            |
 | ----------- | ------------------------------- |
 | **`files`** | <code>FilePickerResult[]</code> |
-
 
 #### FilePickerResult
 
@@ -69,7 +72,6 @@ pick(options: FilePickerOptions) => Promise<FilePickerResults>
 | **`webPath`**   | <code>string</code> | webPath returns a path that can be used to set the src attribute of an image for efficient loading and rendering. |
 | **`name`**      | <code>string</code> | File Name                                                                                                         |
 | **`extension`** | <code>string</code> | File Extensions                                                                                                   |
-
 
 #### FilePickerOptions
 
