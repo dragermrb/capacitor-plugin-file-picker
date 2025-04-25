@@ -27,48 +27,12 @@ public class FilePickerPlugin extends Plugin {
 
     @PluginMethod
     public void pick(PluginCall call) {
-        Boolean multiple = call.getBoolean("multiple", false);
-        JSArray mimes = call.getArray("mimes");
+        boolean multiple = call.getBoolean("multiple", false);
+        List<String> mimeTypes = parseMimeTypes(call.getArray("mimes"));
 
-        Intent chooseFile;
-
-        List<String> supportedMimeTypes = new ArrayList<>();
-        for (int i = 0; i < mimes.length(); i++) {
-            try {
-                supportedMimeTypes.add(mimes.getString(i));
-            } catch (JSONException e) {}
-        }
-
-        if (supportedMimeTypes.size() == 0) {
-            supportedMimeTypes.add("*/*");
-        }
-
-        if (supportedMimeTypes.size() == 1 && supportedMimeTypes.get(0).startsWith("image/")) {
-            chooseFile = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            chooseFile.setType(supportedMimeTypes.get(0));
-        } else {
-            chooseFile = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
-
-            if (supportedMimeTypes.size() == 1) {
-                chooseFile.setType(supportedMimeTypes.get(0));
-            } else {
-                chooseFile.setType("*/*");
-                chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, supportedMimeTypes.toArray(new String[0]));
-            }
-        }
-
-        String type = "";
-        for (String mime : supportedMimeTypes) {
-            type += mime + "|";
-        }
-        type = type.substring(0, type.length() - 1);
-
-        chooseFile.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
-        chooseFile.setType(type);
-        chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
-        chooseFile = Intent.createChooser(chooseFile, "");
-        startActivityForResult(call, chooseFile, "pickFilesResult");
+        Intent raw = PickerIntentFactory.create(getBridge().getActivity(), mimeTypes);
+        Intent chooser = wrapWithChooser(raw, multiple, "Selecione um arquivo");
+        startActivityForResult(call, chooser, "pickFilesResult");
     }
 
     @ActivityCallback
@@ -140,5 +104,30 @@ public class FilePickerPlugin extends Plugin {
         result.put("extension", name.substring(name.lastIndexOf('.') + 1).toLowerCase());
 
         return result;
+    }
+
+    private List<String> parseMimeTypes(JSArray mimesArray) {
+        List<String> list = new ArrayList<>();
+        if (mimesArray != null) {
+            for (int i = 0; i < mimesArray.length(); i++) {
+                try {
+                    list.add(mimesArray.getString(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (list.isEmpty()) {
+            list.add("*/*");
+        }
+        return list;
+    }
+
+    private Intent wrapWithChooser(Intent intent, boolean allowMultiple, String title) {
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        return Intent.createChooser(intent, title);
     }
 }
