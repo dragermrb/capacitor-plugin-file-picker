@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import androidx.activity.result.ActivityResult;
-
 import com.getcapacitor.FileUtils;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -16,13 +15,11 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONException;
 
 @CapacitorPlugin(name = "FilePicker")
@@ -33,7 +30,7 @@ public class FilePickerPlugin extends Plugin {
         Boolean multiple = call.getBoolean("multiple", false);
         JSArray mimes = call.getArray("mimes");
 
-        Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent chooseFile;
 
         List<String> supportedMimeTypes = new ArrayList<>();
         for (int i = 0; i < mimes.length(); i++) {
@@ -44,6 +41,21 @@ public class FilePickerPlugin extends Plugin {
 
         if (supportedMimeTypes.size() == 0) {
             supportedMimeTypes.add("*/*");
+        }
+
+        if (supportedMimeTypes.size() == 1 && supportedMimeTypes.get(0).startsWith("image/")) {
+            chooseFile = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            chooseFile.setType(supportedMimeTypes.get(0));
+        } else {
+            chooseFile = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
+
+            if (supportedMimeTypes.size() == 1) {
+                chooseFile.setType(supportedMimeTypes.get(0));
+            } else {
+                chooseFile.setType("*/*");
+                chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, supportedMimeTypes.toArray(new String[0]));
+            }
         }
 
         String type = "";
