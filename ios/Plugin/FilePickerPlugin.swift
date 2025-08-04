@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import CoreServices
+import AVFoundation
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
@@ -54,6 +55,7 @@ public class FilePickerPlugin: CAPPlugin {
             if (extUTIs.count == 1 && extUTIs.contains("public.movie")){
                 let videoPicker = UIImagePickerController()
                 videoPicker.delegate = self
+                videoPicker.videoExportPreset = AVAssetExportPresetHighestQuality
                 videoPicker.sourceType = .photoLibrary
                 videoPicker.mediaTypes = [kUTTypeMovie as String]
 
