@@ -1,5 +1,5 @@
 import XCTest
-@testable import Plugin
+@testable import FilePickerPlugin
 
 class FilePickerTests: XCTestCase {
     override func setUp() {

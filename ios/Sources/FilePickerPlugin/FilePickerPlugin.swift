@@ -8,7 +8,12 @@ import AVFoundation
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(FilePickerPlugin)
-public class FilePickerPlugin: CAPPlugin {
+public class FilePickerPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "FilePickerPlugin"
+    public let jsName = "FilePicker"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "pick", returnType: CAPPluginReturnPromise),
+    ]
     var savedCall: CAPPluginCall? = nil
 
     @objc func pick(_ call: CAPPluginCall) {
